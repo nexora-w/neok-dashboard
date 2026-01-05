@@ -6,9 +6,9 @@ import "./globals.css"
 const geistMono = GeistMono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Tactical Operations Dashboard",
-  description: "Tactical command and control system",
-    generator: 'v0.app'
+  title: "NEOKCS Dashboard",
+  description: "NEOKCS Dashboard",
+  generator: 'Tamadoge'
 }
 
 export default function RootLayout({

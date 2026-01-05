@@ -36,8 +36,8 @@ export default function DashboardLayout({
         <div className="p-4">
           <div className="flex items-center justify-between mb-8">
             <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
-              <h1 className="text-orange-500 font-bold text-lg tracking-wider">TACTICAL OPS</h1>
-              <p className="text-neutral-500 text-xs">v2.1.7 CLASSIFIED</p>
+              <h1 className="text-orange-500 font-bold text-lg tracking-wider">NEOKCS</h1>
+              <p className="text-neutral-500 text-xs">v1.0.0</p>
             </div>
             <Button
               variant="ghost"
@@ -84,7 +84,7 @@ export default function DashboardLayout({
         <div className="h-16 bg-neutral-800 border-b border-neutral-700 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
             <div className="text-sm text-neutral-400">
-              TACTICAL COMMAND / <span className="text-orange-500">{getPageTitle()}</span>
+              <span className="text-orange-500">{getPageTitle()}</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
