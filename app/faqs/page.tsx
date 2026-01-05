@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus, Edit, Trash2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRefresh } from "@/components/refresh-context";
 
 interface FAQ {
   _id: string;
@@ -40,7 +42,7 @@ interface FAQ {
   answer: string;
 }
 
-export default function FAQsPage() {
+function FAQsPageContent() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -48,18 +50,30 @@ export default function FAQsPage() {
   const [deletingFAQ, setDeletingFAQ] = useState<FAQ | null>(null);
   const [formData, setFormData] = useState({ question: "", answer: "" });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const { setRefreshing: setGlobalRefreshing, setOnRefresh } = useRefresh();
 
   useEffect(() => {
     fetchFAQs();
-  }, []);
+    setOnRefresh(() => () => fetchFAQs(true));
+    return () => setOnRefresh(null);
+  }, [setOnRefresh]);
 
-  const fetchFAQs = async () => {
+  const fetchFAQs = async (isRefresh = false) => {
     try {
+      if (isRefresh) {
+        setGlobalRefreshing(true);
+      } else {
+        setInitialLoading(true);
+      }
       const response = await fetch("/api/faqs");
       const data = await response.json();
       setFaqs(data);
     } catch (error) {
       console.error("Error fetching FAQs:", error);
+    } finally {
+      setInitialLoading(false);
+      setGlobalRefreshing(false);
     }
   };
 
@@ -141,7 +155,6 @@ export default function FAQsPage() {
   };
 
   return (
-    <DashboardLayout>
     <div className="p-6 space-y-6">
       <Card className="bg-neutral-900 border-neutral-700">
         <CardHeader className="pb-3">
@@ -170,7 +183,24 @@ export default function FAQsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {faqs.length === 0 ? (
+              {initialLoading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index} className="border-neutral-700">
+                    <TableCell>
+                      <Skeleton className="h-4 w-full bg-neutral-800" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-full bg-neutral-800" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                        <Skeleton className="h-8 w-8 rounded bg-neutral-800" />
+                        <Skeleton className="h-8 w-8 rounded bg-neutral-800" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : faqs.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center text-neutral-500">
                     No FAQs found. Add one to get started.
@@ -303,8 +333,15 @@ export default function FAQsPage() {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+        </AlertDialog>
     </div>
+  );
+}
+
+export default function FAQsPage() {
+  return (
+    <DashboardLayout>
+      <FAQsPageContent />
     </DashboardLayout>
   );
 }

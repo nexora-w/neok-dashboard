@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import DashboardLayout from "@/components/dashboard-layout";
+import { useRefresh } from "@/components/refresh-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, Edit, Trash2, X, Upload, ImageIcon, Loader2 } from "lucide-react";
 import { ImageKitProvider, IKUpload } from "imagekitio-next";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Bonus {
   _id: string;
@@ -61,7 +63,7 @@ const authenticator = async () => {
   }
 };
 
-export default function BonusesPage() {
+function BonusesPageContent() {
   const [bonuses, setBonuses] = useState<Bonus[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -77,11 +79,36 @@ export default function BonusesPage() {
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const ikUploadRef = useRef<HTMLInputElement>(null);
+  const { setRefreshing: setGlobalRefreshing, setOnRefresh } = useRefresh();
+
+  const fetchBonuses = useCallback(async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+        setGlobalRefreshing(true);
+      } else {
+        setInitialLoading(true);
+      }
+      const response = await fetch("/api/bonuses");
+      const data = await response.json();
+      setBonuses(data);
+    } catch (error) {
+      console.error("Error fetching bonuses:", error);
+    } finally {
+      setInitialLoading(false);
+      setRefreshing(false);
+      setGlobalRefreshing(false);
+    }
+  }, [setGlobalRefreshing]);
 
   useEffect(() => {
     fetchBonuses();
-  }, []);
+    setOnRefresh(() => () => fetchBonuses(true));
+    return () => setOnRefresh(null);
+  }, [fetchBonuses, setOnRefresh]);
 
   const onUploadError = (err: { message: string }) => {
     console.error("Upload error:", err);
@@ -96,16 +123,6 @@ export default function BonusesPage() {
 
   const onUploadStart = () => {
     setUploading(true);
-  };
-
-  const fetchBonuses = async () => {
-    try {
-      const response = await fetch("/api/bonuses");
-      const data = await response.json();
-      setBonuses(data);
-    } catch (error) {
-      console.error("Error fetching bonuses:", error);
-    }
   };
 
   const handleOpenDialog = (bonus?: Bonus) => {
@@ -223,7 +240,6 @@ export default function BonusesPage() {
   };
 
   return (
-    <DashboardLayout>
       <div className="p-6 space-y-6">
         <Card className="bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
@@ -255,7 +271,34 @@ export default function BonusesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {bonuses.length === 0 ? (
+                {initialLoading ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <TableRow key={index} className="border-neutral-700">
+                      <TableCell>
+                        <Skeleton className="w-12 h-12 rounded bg-neutral-800" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-32 bg-neutral-800" />
+                        <Skeleton className="h-3 w-24 bg-neutral-800 mt-2" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-20 bg-neutral-800" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-40 bg-neutral-800" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-32 bg-neutral-800" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-2">
+                          <Skeleton className="h-8 w-8 rounded bg-neutral-800" />
+                          <Skeleton className="h-8 w-8 rounded bg-neutral-800" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : bonuses.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-neutral-500">
                       No bonuses found. Add one to get started.
@@ -587,6 +630,13 @@ export default function BonusesPage() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
+  );
+}
+
+export default function BonusesPage() {
+  return (
+    <DashboardLayout>
+      <BonusesPageContent />
     </DashboardLayout>
   );
 }

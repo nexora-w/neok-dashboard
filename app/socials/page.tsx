@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus, Edit, Trash2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRefresh } from "@/components/refresh-context";
 
 interface Social {
   _id: string;
@@ -39,7 +41,7 @@ interface Social {
   url: string;
 }
 
-export default function SocialsPage() {
+function SocialsPageContent() {
   const [socials, setSocials] = useState<Social[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -47,18 +49,30 @@ export default function SocialsPage() {
   const [deletingSocial, setDeletingSocial] = useState<Social | null>(null);
   const [formData, setFormData] = useState({ name: "", url: "" });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const { setRefreshing: setGlobalRefreshing, setOnRefresh } = useRefresh();
 
   useEffect(() => {
     fetchSocials();
-  }, []);
+    setOnRefresh(() => () => fetchSocials(true));
+    return () => setOnRefresh(null);
+  }, [setOnRefresh]);
 
-  const fetchSocials = async () => {
+  const fetchSocials = async (isRefresh = false) => {
     try {
+      if (isRefresh) {
+        setGlobalRefreshing(true);
+      } else {
+        setInitialLoading(true);
+      }
       const response = await fetch("/api/socials");
       const data = await response.json();
       setSocials(data);
     } catch (error) {
       console.error("Error fetching socials:", error);
+    } finally {
+      setInitialLoading(false);
+      setGlobalRefreshing(false);
     }
   };
 
@@ -143,7 +157,6 @@ export default function SocialsPage() {
   };
 
   return (
-    <DashboardLayout>
     <div className="p-6 space-y-6">
       <Card className="bg-neutral-900 border-neutral-700">
         <CardHeader className="pb-3">
@@ -172,7 +185,24 @@ export default function SocialsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {socials.length === 0 ? (
+              {initialLoading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index} className="border-neutral-700">
+                    <TableCell>
+                      <Skeleton className="h-4 w-32 bg-neutral-800" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-64 bg-neutral-800" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                        <Skeleton className="h-8 w-8 rounded bg-neutral-800" />
+                        <Skeleton className="h-8 w-8 rounded bg-neutral-800" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : socials.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center text-neutral-500">
                     No social links found. Add one to get started.
@@ -317,6 +347,13 @@ export default function SocialsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+export default function SocialsPage() {
+  return (
+    <DashboardLayout>
+      <SocialsPageContent />
     </DashboardLayout>
   );
 }

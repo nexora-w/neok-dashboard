@@ -4,8 +4,9 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronRight, Gift, Share2, HelpCircle, Bell, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RefreshProvider, useRefresh } from "./refresh-context";
 
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode;
@@ -13,6 +14,13 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { refreshing, onRefresh } = useRefresh();
+
+  const handleRefresh = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
+  };
 
   const navItems = [
     { id: "bonuses", icon: Gift, label: "BONUSES", path: "/" },
@@ -92,8 +100,14 @@ export default function DashboardLayout({
             <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-orange-500">
               <Bell className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-orange-500">
-              <RefreshCw className="w-4 h-4" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-neutral-400 hover:text-orange-500"
+              onClick={handleRefresh}
+              disabled={refreshing || !onRefresh}
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </Button>
           </div>
         </div>
@@ -104,6 +118,18 @@ export default function DashboardLayout({
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <RefreshProvider>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </RefreshProvider>
   );
 }
 
