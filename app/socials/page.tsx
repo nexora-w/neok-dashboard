@@ -166,7 +166,7 @@ function SocialsPageContent() {
             </CardTitle>
             <Button
               onClick={() => handleOpenDialog()}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-[#EDAF5F] hover:bg-[#EDAF5F]"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Social
@@ -222,7 +222,7 @@ function SocialsPageContent() {
                         href={social.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-orange-500 underline"
+                        className="hover:text-[#EDAF5F] underline"
                       >
                         {social.url}
                       </a>
@@ -233,7 +233,7 @@ function SocialsPageContent() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenDialog(social)}
-                          className="text-neutral-400 hover:text-orange-500"
+                          className="text-neutral-400 hover:text-[#EDAF5F]"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -311,7 +311,7 @@ function SocialsPageContent() {
               </Button>
               <Button
                 type="submit"
-                className="bg-orange-500 hover:bg-orange-600"
+                className="bg-[#EDAF5F] hover:bg-[#EDAF5F]"
                 disabled={loading}
               >
                 {loading ? "Saving..." : editingSocial ? "Update" : "Add"}

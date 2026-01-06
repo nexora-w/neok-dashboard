@@ -164,7 +164,7 @@ function FAQsPageContent() {
             </CardTitle>
             <Button
               onClick={() => handleOpenDialog()}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-[#EDAF5F] hover:bg-[#EDAF5F]"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add FAQ
@@ -224,7 +224,7 @@ function FAQsPageContent() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenDialog(faq)}
-                          className="text-neutral-400 hover:text-orange-500"
+                          className="text-neutral-400 hover:text-[#EDAF5F]"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -301,7 +301,7 @@ function FAQsPageContent() {
               </Button>
               <Button
                 type="submit"
-                className="bg-orange-500 hover:bg-orange-600"
+                className="bg-[#EDAF5F] hover:bg-[#EDAF5F]"
                 disabled={loading}
               >
                 {loading ? "Saving..." : editingFAQ ? "Update" : "Add"}

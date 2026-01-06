@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronRight, Gift, Share2, HelpCircle, Bell, RefreshCw } from "lucide-react";
+import { ChevronRight, Gift, Share2, HelpCircle, Bell, RefreshCw, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RefreshProvider, useRefresh } from "./refresh-context";
+import { toast } from "sonner";
 
 function DashboardLayoutContent({
   children,
@@ -19,6 +20,19 @@ function DashboardLayoutContent({
   const handleRefresh = () => {
     if (onRefresh) {
       onRefresh();
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (response.ok) {
+        toast.success('Logged out successfully');
+        router.push('/auth');
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error('Failed to logout');
     }
   };
 
@@ -44,14 +58,14 @@ function DashboardLayoutContent({
         <div className="p-4">
           <div className="flex items-center justify-between mb-8">
             <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
-              <h1 className="text-orange-500 font-bold text-lg tracking-wider">NEOKCS</h1>
+              <h1 className="text-[#EDAF5F] font-bold text-lg tracking-wider">NEOKCS</h1>
               <p className="text-neutral-500 text-xs">v1.0.0</p>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="text-neutral-400 hover:text-orange-500"
+              className="text-neutral-400 hover:text-[#EDAF5F]"
             >
               <ChevronRight
                 className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${sidebarCollapsed ? "" : "rotate-180"}`}
@@ -68,7 +82,7 @@ function DashboardLayoutContent({
                   onClick={() => router.push(item.path)}
                   className={`w-full flex items-center gap-3 p-3 rounded transition-colors ${
                     isActive
-                      ? "bg-orange-500 text-white"
+                      ? "bg-[#EDAF5F] text-white"
                       : "text-neutral-400 hover:text-white hover:bg-neutral-800"
                   }`}
                 >
@@ -78,6 +92,17 @@ function DashboardLayoutContent({
               );
             })}
           </nav>
+
+          {/* Logout Button */}
+          <div className="absolute bottom-4 left-0 right-0 px-4">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 p-3 rounded transition-colors text-neutral-400 hover:text-red-500 hover:bg-neutral-800"
+            >
+              <LogOut className="w-5 h-5 md:w-5 md:h-5 sm:w-6 sm:h-6" />
+              {!sidebarCollapsed && <span className="text-sm font-medium">LOGOUT</span>}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -92,18 +117,18 @@ function DashboardLayoutContent({
         <div className="h-16 bg-neutral-800 border-b border-neutral-700 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
             <div className="text-sm text-neutral-400">
-              <span className="text-orange-500">{getPageTitle()}</span>
+              <span className="text-[#EDAF5F]">{getPageTitle()}</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-xs text-neutral-500">LAST UPDATE: 05/06/2025 20:00 UTC</div>
-            <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-orange-500">
+            <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-[#EDAF5F]">
               <Bell className="w-4 h-4" />
             </Button>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-neutral-400 hover:text-orange-500"
+              className="text-neutral-400 hover:text-[#EDAF5F]"
               onClick={handleRefresh}
               disabled={refreshing || !onRefresh}
             >

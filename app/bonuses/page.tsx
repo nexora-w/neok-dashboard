@@ -249,7 +249,7 @@ function BonusesPageContent() {
               </CardTitle>
               <Button
                 onClick={() => handleOpenDialog()}
-                className="bg-orange-500 hover:bg-orange-600"
+                className="bg-[#EDAF5F] hover:bg-[#EDAF5F]"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Bonus
@@ -333,7 +333,7 @@ function BonusesPageContent() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-orange-500 font-mono font-bold">
+                      <TableCell className="text-[#EDAF5F] font-mono font-bold">
                         {bonus.code}
                       </TableCell>
                       <TableCell className="text-neutral-400">
@@ -351,7 +351,7 @@ function BonusesPageContent() {
                           href={bonus.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="hover:text-orange-500 underline text-xs truncate block max-w-[150px]"
+                          className="hover:text-[#EDAF5F] underline text-xs truncate block max-w-[150px]"
                         >
                           {bonus.url}
                         </a>
@@ -362,7 +362,7 @@ function BonusesPageContent() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleOpenDialog(bonus)}
-                            className="text-neutral-400 hover:text-orange-500"
+                            className="text-neutral-400 hover:text-[#EDAF5F]"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -594,7 +594,7 @@ function BonusesPageContent() {
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-orange-500 hover:bg-orange-600"
+                  className="bg-[#EDAF5F] hover:bg-[#EDAF5F]"
                   disabled={loading}
                 >
                   {loading ? "Saving..." : editingBonus ? "Update" : "Add"}
